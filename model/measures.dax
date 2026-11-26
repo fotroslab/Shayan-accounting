@@ -1,0 +1,19 @@
+-- Illustrative; untested in VertiPaq. Column types: date and whole number.
+-- Import CSVs under the table names shown in MODEL.md. Values are synthetic IRR.
+Journal Debit = SUM(fact_journal[debit_irr])
+Journal Credit = SUM(fact_journal[credit_irr])
+Journal Net = [Journal Debit] - [Journal Credit]
+Document Count = DISTINCTCOUNT(fact_journal[entry_id])
+Invoice Count = DISTINCTCOUNT(fact_sales_invoice[invoice_id])
+Gross Sales = SUM(fact_sales_invoice[amount_irr])
+Receivable Balance = SUM(fact_sales_invoice[balance_irr])
+Receipt Amount = SUM(fact_payment_received[amount_irr])
+Payable Balance = SUM(fact_bill_payable[balance_irr])
+-- Fixed snapshot at 1403/12/30; invoice-date filters still apply.
+Overdue Receivable =
+CALCULATE([Receivable Balance], KEEPFILTERS(fact_sales_invoice[balance_irr] > 0), KEEPFILTERS(fact_sales_invoice[due_date_iso] < DATE(2025,3,20)))
+Overdue Payable =
+CALCULATE([Payable Balance], KEEPFILTERS(fact_bill_payable[balance_irr] > 0), KEEPFILTERS(fact_bill_payable[due_date_iso] < DATE(2025,3,20)))
+Trial Debit = SUM(trial_balance[debit_irr])
+Trial Credit = SUM(trial_balance[credit_irr])
+Trial Balance = [Trial Debit] - [Trial Credit]
